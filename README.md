@@ -1,7 +1,7 @@
 # mdBook Lang
 ___
 
-A playground mdbook preprocessor and compiling server for multiple programming languages inspired by [Rust rlayground](https://rust-lang.github.io/mdBook/format/mdbook.html#rust-playground) supporting only Rust programming.
+A playground mdbook preprocessor and compiler server for multiple programming languages inspired by [Rust rlayground](https://rust-lang.github.io/mdBook/format/mdbook.html#rust-playground) supporting only Rust programming.
 
 Current v0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme in build-in manner.
 
@@ -15,34 +15,22 @@ clang++ for C/C++
 
 golang for go
 
-python2 for python
+python2/python3 for python
 
-jdk for java
+sun jdk/openjdk for java
 
 nodejs for javascript and typescript
+
 tsc for typescript
 
 
 gambit for scheme/lisp
 
 
-___ 
-```cpp
-// C/C++ code block
-#include <iostream>
-using namespace std;
-
-int main(int argc, char** argv){
-    cout << "Hello C Plus Plus  World! << endl;
-    return 0;
-}
-```
-___
-
 ## for the book.toml
 ### at the directory where `book.toml` exists, install the mdbook-lang support
 ```bash
-$mdbook-lang install
+$ mdbook-lang install
 ```
 
 After installation, the are two sections `[output.html]` and `[preprocessor.lang]` added or modifed as:
@@ -53,7 +41,7 @@ additional-css = ["lang.css"]
 additional-js = ["disable-devtool.js", "lang.js", "jquery.js"]
 [preprocessor.lang]
 command = "mdbook-lang"
-server = "http://127.0.0.1/api/v1/build-code"
+server = "http://127.0.0.1:3333/api/v1/build-code"
 cpp-enable = true
 java-enable = true
 go-enable = true
@@ -72,54 +60,31 @@ disable-paste = false
 ace-strict = true
 ```
 
-`server = "http://127.0.0.1/api/v1/build-code"` is used for local/remote playground server to run code block.
+`server = "http://127.0.0.1:3333/api/v1/build-code"` is used for local/remote playground server to run code block.
 
-`cpp-enable = true` is supported by mdbook-lang, or `cpp-enable = false` is not supported by mdbook-lang.
+`cpp-enable = true`: C/C++ is supported by mdbook-lang, or `cpp-enable = false`: C/C++ is not supported by mdbook-lang.
 
-`disable-devtool-auto` etc. is for `disable-devtool.js` tools to disable or enable the javascript.
+`disable-devtool-auto` is for `disable-devtool.js` tools to disable or enable the it auto.
 
-`editable = true` to enable edit the code block in `ACE editor`.
+`editable = true` to enable edit the code block in `ACE editor` `editable = false` to disable.
 
-`ace-strict = true` disable `ACE editor` copy/cut/paste
+`ace-strict = true` disable  copy/cut/paste in `ACE editor`
 
 And all the value are default.
-
-___
-
-### code block support option
-```cpp,editable,norun
-#inlcude <iostream>
-using namespace std;
-int main(int argc, char** argv){
-    cout << "Hello C/C++ World in mdbook-lang code block" << endl;
-    return 0;
-}
-```
-
-this C/C++ code can be edited and cann't be played.
-
-
-### code with `nolang`
-```cpp,nolang
-#inlcude <iostream>
-using namespace std;
-int main(int argc, char** argv){
-    cout << "Hello C/C++ World in mdbook-lang code block" << endl;
-    return 0;
-}
-```
-this C/C++ code will not processed by mdbook-lang for the `nolang` option.
-
-___
 
 ## start the mdbook and begin playing
 
 
-Install mdbook-lang plugin, start the mdbook and programming language server in the directory of joop mdbook:
+Install mdbook-lang plugin, start the mdbook and programming language server in the directory of example mdbook:
 ```bash
-$mdbook mdbook-lang install
-$mdbook serve -n 127.0.0.1 -p 2000
-$mdbook mdbook-lang server start -n 127.0.0.1 -p 3333
+# install mdbook-lang plugin
+$ mdbook-lang install
+# start mdbook
+$ mdbook serve -n 127.0.0.1 -p 2000
+# start mdbook-lang server use default configure as 127.0.0.1:3333
+$ mdbook-lang server start
+# or start mdbook-lang server use given hostname and port
+$ mdbook-lang server start --hostname 127.0.0.1 --port 3333
 ```
 
 ## Notice
@@ -135,17 +100,19 @@ $mdbook-lang server start
 $mdbook-lang server start -n 127.0.0.1 -p 9876
 ```
 #### stop
-Stop 
+Stop the compiler server
 ```shell
-$mdbook-lang server stop
+$ mdbook-lang server stop
 ```
 #### restart
+restart the compiler server use the configure as the same as the last start command.
 ```shell
-$mdbook-lang server restart
+$ mdbook-lang server restart
 ```
 #### status
+show the status of the compiler server
 ```shell
-$mdbook-lang server status
+$ mdbook-lang server status
 ```
 
 

@@ -239,7 +239,7 @@
         <!-- Livereload script (if served using the cli tool) -->
         <script>
             const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/joop/" + "{{{live_reload_endpoint}}}";
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "{{{live_reload_endpoint}}}";
             const socket = new WebSocket(wsAddress);
             socket.onmessage = function (event) {
                 if (event.data === "reload") {
