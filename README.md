@@ -24,7 +24,7 @@ nodejs for javascript and typescript
 tsc for typescript
 
 
-gambit for scheme/lisp
+gambit-scheme for scheme/lisp
 
 
 ## for the book.toml
