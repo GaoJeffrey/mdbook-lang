@@ -1,0 +1,22 @@
+[book]
+title = "Some configuration options are set"
+
+[preprocessor.lang]
+command = "mdbook-lang"
+server = "http://127.0.0.1:3333/api/v1/build-code"
+cpp-enable = true
+java-enable = true
+go-enable = true
+python-enable = true
+javascript-enable = true
+typescript-enable = true
+scheme-enable = true
+editable = true
+disable-devtool-auto = false
+disable-menu = false
+clear-log = false
+disable-select = false
+disable-copy = false
+disable-cut = false
+disable-paste = false
+ace-strict = false
