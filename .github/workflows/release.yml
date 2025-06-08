@@ -84,7 +84,7 @@ jobs:
         run: |
           mv x86_64-unknown-linux-gnu mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-unknown-linux-gnu
           mv x86_64-apple-darwin mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-apple-darwin
-          mv x86_64-pc-windows-msvc mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-pc-windows-msvc
+          # mv x86_64-pc-windows-msvc mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-pc-windows-msvc
 
       - name: Compress binaries
         run: |
@@ -92,7 +92,7 @@ jobs:
           upx --best mdbook-lang-*/mdbook-lang*
           zip -r mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-unknown-linux-gnu{.zip,}
           zip -r mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-apple-darwin{.zip,}
-          zip -r mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-pc-windows-msvc{.zip,}
+          # zip -r mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-pc-windows-msvc{.zip,}
 
       - name: Create release
         uses: softprops/action-gh-release@v1
@@ -101,4 +101,4 @@ jobs:
           files: |
             mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-unknown-linux-gnu.zip
             mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-apple-darwin.zip
-            mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-pc-windows-msvc.zip
+            # mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-pc-windows-msvc.zip
