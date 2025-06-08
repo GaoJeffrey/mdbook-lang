@@ -104,8 +104,7 @@ mdbook serve
 norun option will make the codeblock not rendered by the preprocessor. You can use this option if you want to show some code examples that should not be executed, and the `language` is enabled by `language.enable=true`.
 
 ```markdown
-
-    ```java,norun
+    ``` java,norun
     // java codeblock with norun option
     public class HelloWorld {
         public static void main(String[] args) {
@@ -113,7 +112,6 @@ norun option will make the codeblock not rendered by the preprocessor. You can u
         }
     }
     ```
-
 ```
 
 
@@ -130,7 +128,7 @@ public class HelloWorld {
 
 ```markdown
 
-    ```java
+    ``` java
     // java codeblock without norun option
     public class HelloWorld {
         public static void main(String[] args) {
