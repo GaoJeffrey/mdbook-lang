@@ -6,7 +6,7 @@ This is mostly iinspired by mdbook rust and mdbook-repl, but it's only limited t
 
 ```cpp
 #include <iostream>
-usinag namespace std;
+using namespace std;
 int main() {
     cout << "Hello, World!" << endl;
     return 0;
