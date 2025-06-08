@@ -252,7 +252,7 @@ server {
 
 Please pay attention to the the string `/joop/` in index.hb for WebSocket to enable nginx reverse proxy if you need deploying multiple mdbooks.
 
-```html
+```Handlebars
 <!-- joop/theme/index.hbs -->
 {{#if live_reload_endpoint}}
 <!-- Livereload script (if served using the cli tool) -->                                                        

@@ -17,14 +17,14 @@ before_script:
 script:
   - cd /home/runner/work/mdbook-lang/mdbook-lang/doc
   - mdbook build && mdbook test # In case of custom book path: mdbook build path/to/mybook && mdbook test path/to/mybook
-  - mdbook-install
+  - mdbook-lang install
 deploy:
   provider: pages
   strategy: git
   edge: true
   cleanup: false
   github-token: $GITHUB_TOKEN
-  local-dir: book # In case of custom book path: path/to/mybook/book
+  local-dir: doc/book # In case of custom book path: path/to/mybook/book
   keep-history: false
   on:
     branch: main
