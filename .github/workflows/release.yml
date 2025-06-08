@@ -101,3 +101,5 @@ jobs:
             mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-unknown-linux-gnu.zip
             mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-apple-darwin.zip
             # mdbook-lang-${{ steps.get_version.outputs.VERSION }}-x86_64-pc-windows-msvc.zip
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
