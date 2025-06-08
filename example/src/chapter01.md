@@ -7,7 +7,7 @@ c++ code example
 #include <iostream>
 
 int main(int argc, char** argv){
-	printf("editable witoutout norun\n");
+	printf("editable without norun\n");
 	return 0;
 }
 ```
@@ -17,7 +17,7 @@ int main(int argc, char** argv){
 #include <iostream>
 
 int main(int argc, char** argv){
-	printf("witouts editable, with norun, but editable is enabled default\n");
+	printf("without editable, with norun, but editable is enabled default\n");
 	return 0;
 }
 ```

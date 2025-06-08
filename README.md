@@ -5,8 +5,6 @@ A playground mdbook preprocessor and compiler server for multiple programming la
 
 Current v0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme in build-in manner.
 
-Bellow is an example of a c/c++ code block that can be executed on local or remote server deployed by yourself, this is the same idea as the Rust Playground does.
-
 ___
 
 ## compiler
@@ -19,7 +17,7 @@ python2/python3 for python
 
 sun jdk/openjdk for java
 
-nodejs for javascript and typescript
+node.js for javascript and typescript
 
 tsc for typescript
 
