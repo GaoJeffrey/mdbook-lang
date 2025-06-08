@@ -8,7 +8,7 @@ ___
 
 # Languages
 
-- [C/C++](./chapter_4.md
+- [C/C++](./chapter_4.md)
 - [Go](./chapter_5.md)
 - [Java](./chapter_6.md)
 - [Python](./chapter_7.md)

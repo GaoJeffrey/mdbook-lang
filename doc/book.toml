@@ -9,7 +9,7 @@ title = "mdbook-lang"
 
 [preprocessor.lang]
 command = "mdbook-lang"
-server = "http://183.205.132.14:3333/playground/api/v1/build-code"
+server = "http://183.205.132.14:3000/playground/api/v1/build-code"
 cpp-enable = true
 java-enable = true
 go-enable = true
