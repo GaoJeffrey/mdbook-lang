@@ -211,7 +211,6 @@ blacklist /usr/libexec/firejail/firejail-shell
 blacklist /usr/libexec/firejail/firejail-shell-wrapper
 blacklist /usr/libexec/firejail/firejail
 ```
-- firejail -s start/stop/reload
 
 ### for multiple mdbooks: nginx reverse proxy configure
 
@@ -246,6 +245,7 @@ server {
 }
 ```
 
+
 ### nginx reverse proxy for mdbook changes while refresh front web page
 
 #### modify `index.hbs` by yourself
@@ -272,3 +272,6 @@ Please pay attention to the the string `/joop/` in index.hb for WebSocket to ena
 </script>
 {{/if}}
 ```
+
+
+- nginx -s  stop/quit/reopen/reload

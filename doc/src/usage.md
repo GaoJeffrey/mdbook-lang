@@ -103,17 +103,18 @@ mdbook serve
 
 norun option will make the codeblock not rendered by the preprocessor. You can use this option if you want to show some code examples that should not be executed, and the `language` is enabled by `language.enable=true`.
 
-```markdown
-    ``` java,norun
-    // java codeblock with norun option
-    public class HelloWorld {
-        public static void main(String[] args) {
-            System.out.println("Hello, world!");
-        }
+<pre>
+<code class="language-markdown">
+&#96;&#96;&#96;java,norun
+// java codeblock with norun option
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, world!");
     }
-    ```
-```
-
+}
+&#96;&#96;&#96;
+</code>
+</pre>
 
 And it will not be rendered by this preprocessor:
 
@@ -125,19 +126,17 @@ public class HelloWorld {
     }
 }
 ```
-
-```markdown
-
-    ``` java
-    // java codeblock without norun option
-    public class HelloWorld {
-        public static void main(String[] args) {
-            System.out.println("Hello, world!");
-        }
+<pre><code class="language-markdown">
+&#96;&#96;&#96;java
+// java codeblock without norun option
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, world!");
     }
-    ```
-
-```
+}
+&#96;&#96;&#96;
+</code>
+</pre>
 
 And it will be rendered by this preprocessor:
 
@@ -170,9 +169,9 @@ Here is the full list of extensions:
 | C++ | cpp, c++, c| clang++|
 | Java | java|sun jdk/openjdk|
 | Go | go|golang|
-| Python | py, python|python2,python3|
+| Python | py, python|python2, python3, python|
 | JavaScript | js, javascript|node.js|
-| TypeScript | ts, typescript|node.js,tsc|
+| TypeScript | ts, typescript|node.js, tsc|
 | Scheme | lisp, scheme|gambit-scheme|
 
 Into to support langguage playground, you should install the compiler for the language on compiler server host.
