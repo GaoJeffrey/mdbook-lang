@@ -15,7 +15,7 @@ before_script:
   - cargo install-update -a
 
 script:
-  - cd /home/runner/work/mdbook-lang/mdbook-lang/doc
+  - cd doc
   - mdbook build && mdbook test # In case of custom book path: mdbook build path/to/mybook && mdbook test path/to/mybook
   - mdbook-lang install
 deploy:
