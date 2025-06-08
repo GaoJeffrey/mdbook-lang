@@ -42,7 +42,7 @@ fn main(){
     // mdbook-lang --install command line argument
     cli.lang_install(&lang);
 
-    // mdbook-lang --server start/stop/reload command line argument
+    // // mdbook-lang --server start/stop/reload command line argument
     cli.lang_server(&lang);
     
     if let Err(e) = handle_preprocessing(&lang) {
