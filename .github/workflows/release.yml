@@ -6,6 +6,7 @@ on:
     branches: [ "main" ]
 env:
   CARGO_TERM_COLOR: always
+  MDBOOK_VERSION: 0.4.51
   
 jobs:
   build:
@@ -35,12 +36,13 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      # - name: Install toolchain
-      #   uses: actions-rs/toolchain@v1
-      #   with:
-      #     override: true
-      #     toolchain: stable
-      #     target: ${{ matrix.target }}
+      - uses: actions/checkout@v4
+      - name: Install mdBook
+        run: |
+          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -y | sh
+          rustup update
+          cargo install --version ${MDBOOK_VERSION} mdbook
+          cargo install mdbook-lang
 
       - name: Build release
         run: cargo build --release
@@ -59,11 +61,11 @@ jobs:
           name: ${{ matrix.target }}
           path: target/release/mdbook-lang.exe
 
-      - name: Publish crate
-        if: matrix.target == 'x86_64-unknown-linux-gnu'
-        run: |
-          cargo login ${{ secrets.CARGO_TOKEN }}
-          cargo publish
+      # - name: Publish crate
+      #   if: matrix.target == 'x86_64-unknown-linux-gnu'
+      #   run: |
+      #     cargo login ${{ secrets.CARGO_REGISTRY_TOKEN}}
+      #     cargo publish
 
   release:
     runs-on: ubuntu-latest
