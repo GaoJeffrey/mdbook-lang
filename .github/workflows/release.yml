@@ -35,12 +35,12 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          override: true
-          toolchain: stable
-          target: ${{ matrix.target }}
+      # - name: Install toolchain
+      #   uses: actions-rs/toolchain@v1
+      #   with:
+      #     override: true
+      #     toolchain: stable
+      #     target: ${{ matrix.target }}
 
       - name: Build release
         run: cd backend && cargo build --release
