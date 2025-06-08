@@ -3,7 +3,6 @@ on:
   push:
     tags:
       - '*'
-      
 env:
   CARGO_TERM_COLOR: always
   MDBOOK_VERSION: 0.4.51
