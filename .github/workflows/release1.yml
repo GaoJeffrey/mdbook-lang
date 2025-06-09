@@ -5,14 +5,14 @@ on:
       - '*'
   workflow_dispatch:
     logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-        type: choice
-        options:
-          - info
-          - warning
-          - error
+      description: 'Log level'
+      required: true
+      default: 'warning'
+      type: choice
+      options:
+        - info
+        - warning
+        - error
     tags:
       description: 'Test scenario tags'
       required: true
