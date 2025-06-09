@@ -21,7 +21,7 @@ let  result_block = {
 
 let data = JSON.stringify(params);
 
-fetch_with_timeout('http://127.0.0.1:8888/build-code', {
+fetch_with_timeout('http://127.0.0.1:3333/api/v1/build-code', {
         headers: {
             'Content-Type': 'application/json',
         },
