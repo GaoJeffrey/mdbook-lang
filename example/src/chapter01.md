@@ -2,12 +2,12 @@
 c++ code example
 
 
-```c++
+```c++,editable=false
 #include <stdio.h>
 #include <iostream>
 
 int main(int argc, char** argv){
-	printf("editable without norun\n");
+	printf("editable=false without norun\n");
 	return 0;
 }
 ```
@@ -58,7 +58,7 @@ console.log("Hello JavaScript World!!!")
 ```
 
 python
-```python, editable
+```python, editable=true
 print("Hello Python Wrold")
 ```
 java

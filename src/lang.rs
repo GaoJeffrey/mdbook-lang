@@ -115,7 +115,12 @@ fn render_langs(content: &str, config: &Config) -> (bool, String) {
             let options = parse_options(options_str);
             let editable = options.contains(&"editable".to_string());
             let editable_config: bool = cfg::get_config_bool(config, "editable", false);
-            let editable = editable || editable_config;
+            let mut editable = editable || editable_config;
+            
+            if options.contains(&"editable=false".to_string())
+            {
+                editable = false;
+            }
 
             let noplayground = options.contains(&"norun".to_string());
             // get the config options

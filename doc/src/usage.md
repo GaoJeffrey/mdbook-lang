@@ -174,9 +174,9 @@ Here is the full list of extensions:
 | TypeScript | ts, typescript|node.js, tsc|
 | Scheme | lisp, scheme|gambit-scheme|
 
-Into to support langguage playground, you should install the compiler for the language on compiler server host.
+In order to to support some langguages, you should install corresponding compilers on compiler server host.
 
 
 ## Performance
 
-There is no doubt that the execution of the code is really fast compared with backend server playgrounds. However, the bottleneck is the compiling and loading time of the codeblock, which is depending on each language.
+It is no doubt that the execution of codeblock through browser is really fast compared with in IDEs with additional a slight network delay. And the overload of the compiler server is also not a big problem.
