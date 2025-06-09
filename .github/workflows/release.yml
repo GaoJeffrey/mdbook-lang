@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
+
 env:
   CARGO_TERM_COLOR: always
   MDBOOK_VERSION: 0.4.51
