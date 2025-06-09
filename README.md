@@ -5,7 +5,15 @@ A playground mdbook preprocessor and compiler server for multiple programming la
 
 Current v0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme in build-in manner.
 
-___
+## platform support 
+| Version | OS | Arch |
+| ------- | ------- | ------- |
+| 0.1.x | Linux | all|
+| 0.1.x | MacOS| all |
+| 0.1.0 | Windows | no |
+| 0.1.1 | Windows | all |
+
+- v0.1.1 is coming soon.
 
 ## compiler
 
@@ -272,6 +280,5 @@ Please pay attention to the the string `/joop/` in index.hb for WebSocket to ena
 </script>
 {{/if}}
 ```
-
 
 - nginx -s  stop/quit/reopen/reload
