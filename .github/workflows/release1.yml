@@ -10,9 +10,9 @@ on:
         default: 'warning'
         type: choice
         options:
-        - info
-        - warning
-        - debug
+          - info
+          - warning
+          - error
     tags:
       description: 'Test scenario tags'
       required: true
