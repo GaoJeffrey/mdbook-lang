@@ -21,7 +21,7 @@ on:
       tags:
         description: 'Test scenario tags'
         required: true
-        type: boolean
+        default: '1.0.0'
       environment:
         description: 'Environment to run tests against'
         type: environment
@@ -47,6 +47,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@master
+      - name: Checkout specific tag
+        uses: actions/checkout@master with: refs: tags: ${{ github.event.inputs.version }}
 
       - name: Cahce
         uses: actions/cache@v3
