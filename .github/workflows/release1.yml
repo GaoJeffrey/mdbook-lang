@@ -23,12 +23,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@master
-      - name: Checkout specific tag
-        uses: actions/checkout@master 
-        with: 
-          ref: '0.1.0'
-
       - name: Cahce
         uses: actions/cache@v3
         with:
