@@ -152,7 +152,7 @@ pub fn build_java(code_block: String, sandbox_args_vec: Vec<String>) -> String{
             if(main_class_file.len() > 1){
                 main_class_file.sort();
                 result.push_str("more than one main class found, use the first one\n");
-                result.push_str("execute the first one:\n ");
+                result.push_str("execute the first one class:");
                 result.push_str(main_class_file[0].file_stem().unwrap().to_str().unwrap());
                 result.push_str("\n");
             }

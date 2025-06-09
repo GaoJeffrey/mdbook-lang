@@ -1,8 +1,0 @@
-/* define a class for the ace_editor's class for display the run button or not */
-.hidden {
-    display: none;
-}
-
-.hljs.ace_editor {
-   padding: 1rem 1rem !important; 
-}
