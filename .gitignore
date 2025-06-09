@@ -1,3 +1,14 @@
 /target
+
 /example/book
+/example/*.js
+/example/*.css
+/example/*.html
+
 /doc/book
+/doc/*.js
+/doc/*.css
+/doc/*.html
+
+.DS_Store
+/*/.DS_Store
