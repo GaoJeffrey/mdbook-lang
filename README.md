@@ -1,9 +1,11 @@
 # mdBook Lang
+
+[Document on Github](https://gaojeffrey.github.io/mdbook-lang/)
+
 ___
+A playground mdbook preprocessor and compiler server for multiple programming languages inspired by [Rust rlayground](https://rust-lang.github.io/mdBook/format/mdbook.html#rust-playground), which supports only Rust programming language.
 
-A playground mdbook preprocessor and compiler server for multiple programming languages inspired by [Rust rlayground](https://rust-lang.github.io/mdBook/format/mdbook.html#rust-playground) supporting only Rust programming.
-
-Current v0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme in build-in manner.
+Version 0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme in build-in manner on Unix like os, such as Linux/MacOS/FreeBSD etc., while windows is supported from version 0.1.1.
 
 ## platform support 
 | Version | OS | Arch |
@@ -13,28 +15,55 @@ Current v0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme 
 | 0.1.0 | Windows | no |
 | 0.1.1 | Windows | all |
 
-- v0.1.1 is coming soon.
+- v0.1.1 is online now.
 
-## compiler
+---
 
-clang++ for C/C++
-
-golang for go
-
-python2/python3 for python
-
-sun jdk/openjdk for java
-
-node.js for javascript and typescript
-
-tsc for typescript
+## Simple usage
+**Make sure that you have the rust development environment installed, and then:**
+```bash
+$ cargo install mdbook mdbook-lang
+$ cd your/mdbook/directory
+$ mdbook-lang install
+$ mdbook-lang server start
+$ mdbook serve -o
+```
 
 
-gambit-scheme for scheme/lisp
+## Pre-installed Compiler
+You should install the corresponding compiler(s) to use the playground for your select programming language(s):
 
+- clang++ for C/C++
+- golang for go
+- python2/python3 for python(`python` binary should be in the `PATH` env.)
+- sun jdk/openjdk for java
+- node.js for javascript and typescript
+- tsc for typescript
+- gambit-scheme for scheme/lisp(`gsi` binary should be in the `PATH` env.)
 
-## for the book.toml
-### at the directory where `book.toml` exists, install the mdbook-lang support
+---
+
+### Unix like OS
+Needn't config the `PATH` environment if you install it in `/usr/local/bin` or other directory through `yum`, `apt` or `brew` etc. commands.
+
+### Windows
+On Windows OS, install the compiler and config the `PATH` environment of `System` not `Users`（`mdbook-lang.exe` is installed as a `system service`, and running as another `system user`. Taking C/C++ for example:
+- install compiler
+  - download and install [mingw-w64](https://github.com/mstorsjo/llvm-mingw/releases) for C/C++ by your self
+    - extract the mingw archive
+    - find the directory contain `clang++.exe`
+    - add the directory to `PATH` environment of `System` not `Users`
+  - or install [chocolatey](https://chocolatey.org/install) and use [chocolatey mingw](https://community.chocolatey.org/packages?q=mingw), `choco install mingw`
+    - find the `chocolatey` bin directory
+    - add the directory to `PATH` environment of `System` not `Users`
+      - like `C:\ProgramData\chocolatey\bin`
+    - check the `PATH` environment of `System`
+- [`system environment` setting](https://www.wikihow.com/Change-the-PATH-Environment-Variable-on-Windows)
+---
+# Comprehensive usage
+
+## `mdbook-lang install` changes `book.toml`
+**At the directory where `book.toml` exists, install the mdbook-lang support**
 ```bash
 $ mdbook-lang install
 ```
@@ -95,8 +124,9 @@ $ mdbook-lang server start --hostname 127.0.0.1 --port 3333
 
 ## Notice
 
-### compiling server is daemonized
-#### start
+### Unix like OS
+#### compiling server is daemonized
+##### start
 Start the compiling server to enable playground for multiple programming languages, and running as a daemon at the stdin/stdout/stderr and pid files as /tmp/mdbook-lang-server.[pid/err/out]
 
 ```shell
@@ -105,24 +135,46 @@ $mdbook-lang server start
 # start for listening 127.0.0.1:9876
 $mdbook-lang server start -n 127.0.0.1 -p 9876
 ```
-#### stop
+##### stop
 Stop the compiler server
 ```shell
 $ mdbook-lang server stop
 ```
-#### restart
+##### restart
 restart the compiler server use the configure as the same as the last start command.
 ```shell
 $ mdbook-lang server restart
 ```
-#### status
+##### status
 show the status of the compiler server
 ```shell
 $ mdbook-lang server status
 ```
 
+### Windows
+Tht mdbook-lang playground server is install as a windows service, you can use the following command to start/stop/restart the service.
 
-## deploy on global server and provide online mdbook and mdbook-lang service
+- Open the command prompt as administrator, and run the following command:
+
+```bash
+C:\Windows\system32> mdbook-lang server install --hostname 127.0.0.1 --port 3333
+```
+
+Then the service is installed as a windows service, you can use the `System Service Manager` provided by `Microsoft` or through the command line to start/stop/restart the service as in Unix like OS do(needing administrator privilege):
+```bash
+C:\Windows\system32> mdbook-lang server start # there are no arguments for start sub-command
+C:\Windows\system32> mdbook-lang server stop
+C:\Windows\system32> mdbook-lang server restart
+```
+
+- Anytime, you can delete the `mdbook-lang` service through:
+```bash
+C:\Windows\system32> mdbook-lang uninstall
+```
+
+## Deploy globally and serve to all the world
+
+You need a host with `ipv4/ipv6` address, and the security is important.
 
 ### For security: the compiling server support sandbox such as firejail
 - set two envs to enable firejail

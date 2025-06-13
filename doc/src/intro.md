@@ -2,7 +2,7 @@
 
 An mdBook real-time playground for programming languages, executed in the browser with a compiler server deployed by yourself. You can also extend it with some more programming languages.
 
-This is mostly iinspired by mdbook rust and mdbook-repl, but it's only limited to rust and some interpreted programming languages through [https://play.rust-lang.org](https://play.rust-lang.org) of iframe embeded wasm to support such as `python`,`javascript` and `typescript`. Then we can extend it with more programming languages through controled compiler server.
+This is mostly inspired by mdbook rust and mdbook-repl, but it's only limited to rust and some interpreted programming languages through [https://play.rust-lang.org](https://play.rust-lang.org) or iframe embeded wasm to support such as `python`,`javascript` and `typescript`. Then we can extend it with more programming languages through controled compiler/run server.
 
 ```cpp
 #include <iostream>

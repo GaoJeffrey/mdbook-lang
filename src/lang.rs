@@ -1,8 +1,10 @@
-use std::{env, fs::{self, File}, process, thread};
+use std::{fs::{self, File}, process};
+
 use std::io::{self, Write};
 use std::path::PathBuf;
 
 use clap::ArgMatches;
+
 use mdbook::{
     book::Book,
     errors::Error,
@@ -17,19 +19,13 @@ use uuid::Uuid;
 use toml_edit::{value, Array, DocumentMut, Item, Table, Value};
 
 use crate::{cfg, Code};
-use tower_http::cors::{Any, CorsLayer};
-
-use axum::{
-    http::{header::CONTENT_TYPE, Method}, routing::{get, post}, Json, Router
-};
-use daemonize::Daemonize;
-use signal_hook::{consts::{SIGINT, SIGQUIT, SIGTERM}, iterator::Signals};
+use axum::Json;
 
 use crate::cli;
 use crate::build_c;
 use crate::build_cpp;
 use crate::build_go;
-use crate::build_java;
+use crate::build_java_classpath_separator;
 use crate::build_python;
 use crate::build_javascript;
 use crate::build_typescript;
@@ -43,9 +39,9 @@ const DISABLE_DEVTOOL_JS: &[u8] = include_bytes!("assets/disable-devtool.js");
 
 const LANG_FILES: &[(&str, &[u8])] = &[
     ("lang.html", LANG_HTML),
-    ("lang.js", LANG_JS),   
-    ("lang.css", LANG_CSS),  
-    ("jquery.js", JQUERY_JS),   
+    ("lang.js", LANG_JS),
+    ("lang.css", LANG_CSS),
+    ("jquery.js", JQUERY_JS),
     ("disable-devtool.js", DISABLE_DEVTOOL_JS),
 ];
 
@@ -90,7 +86,6 @@ fn map_lang(raw_lang: &str) -> &str {
 }
 
 fn render_langs(content: &str, config: &Config) -> (bool, String) {
-    
     // \r? is for windows line endings
     let langs = r"\blisp\b|\bscheme\b|\bcpp\b|\bc++\b|\bc\b|\bjava\b|\bpy\b|\bpython\b|\bts\b|\btypescript\b|\bjs\b|\bjavascript\b|\bgo\b";
     let re: Regex = Regex::new(&format!(r"(?s)```({}),?(.*?)\r?\n(.*?)```", langs)).unwrap();
@@ -99,7 +94,7 @@ fn render_langs(content: &str, config: &Config) -> (bool, String) {
     if !re.is_match(content) {
         return (false, content.to_string());
     }
-   
+
 
     // replace all matches with the lang html
     let rendered = re
@@ -116,7 +111,7 @@ fn render_langs(content: &str, config: &Config) -> (bool, String) {
             let editable = options.contains(&"editable".to_string());
             let editable_config: bool = cfg::get_config_bool(config, "editable", false);
             let mut editable = editable || editable_config;
-            
+
             if options.contains(&"editable=false".to_string())
             {
                 editable = false;
@@ -125,8 +120,7 @@ fn render_langs(content: &str, config: &Config) -> (bool, String) {
             let noplayground = options.contains(&"norun".to_string());
             // get the config options
             let enable = cfg::get_config_bool(config, &format!("{}-enable", lang), false);
-            
-            
+
             let mut restful_api_server = cfg::get_config_string(
                 config,
                 "server",
@@ -162,7 +156,7 @@ fn render_langs(content: &str, config: &Config) -> (bool, String) {
             let lines = (codeblock.lines().count()+3) * 23 ;
             get_asset("lang.html")
                 .replace("{lang}", lang)
-                .replace("{codeblock}", &codeblock)                
+                .replace("{codeblock}", &codeblock)
                 .replace("{editable}", if editable { "editable" } else {"" })
                 .replace("[norun]", if noplayground { "norun" } else { "" })
                 .replace("[lines]", &lines.to_string())
@@ -211,6 +205,7 @@ impl Preprocessor for Lang {
     }
 }
 
+
 #[allow(unused)]
 pub fn handle_preprocessing(lang: &Lang) -> Result<(), Error> {
     let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
@@ -224,12 +219,11 @@ pub fn handle_preprocessing(lang: &Lang) -> Result<(), Error> {
     }
     let processed_book = lang.run(&ctx, book)?;
 
-   
+
     serde_json::to_writer(io::stdout(), &processed_book)?;
 
     Ok(())
 }
-
 
 
 #[allow(unused)]
@@ -440,6 +434,7 @@ fn has_file(elem: &Option<&mut Array>, file: &str) -> bool {
     }
 }
 
+
 fn insert_additional(doc: &mut DocumentMut, additional_type: &str, file: &str) {
     log::debug!("befor insert_additional:\n{}", doc.to_string());
     let doc = doc.as_table_mut();
@@ -468,133 +463,159 @@ fn insert_additional(doc: &mut DocumentMut, additional_type: &str, file: &str) {
 
 
 
-
+#[cfg(target_os = "windows")]
+pub fn start_lang_server(){
+       win::start_lang_server();
+}
+#[cfg(not(target_os = "windows"))]
 pub fn start_lang_server(hostname:&str, port:&str){
-    log::info!("start language compiling server as daemon");
+       nix::start_lang_server(hostname, port);
+}
+#[cfg(not(target_os = "windows"))]
+mod nix{
+    use super::*;
+    use tower_http::cors::{Any, CorsLayer};
+    use std::{env, thread};
+    use axum::{
+        http::{header::CONTENT_TYPE, Method}, routing::{get, post}, Router
+    };
     
-    // use the tmpfile find temporary directory
-    let base_dir = env::current_dir().unwrap();
-    let mut tmp = PathBuf::new();
-    tmp.push(std::env::temp_dir().to_str().unwrap().to_string());
-
-    log::debug!("temp path: {}\n", tmp.as_path().to_str().unwrap());
-    
-    let mut stdout_path = tmp.clone();
-    stdout_path.push("mdbook-lang-server.out");
-
-    let mut stderr_path = tmp.clone();
-    stderr_path.push("mdbook-lang-server.err");
-
-    let mut pid_path = tmp.clone();
-    pid_path.push("mdbook-lang-server.pid");
-
-    {
+    pub fn start_lang_server(hostname:&str, port:&str){
+        use daemonize::Daemonize;
+        use signal_hook::consts::{SIGINT, SIGQUIT, SIGTERM};
+        use signal_hook::iterator::Signals;
+        log::info!("start language compiling server as daemon");
+        
+        // use the tmpfile find temporary directory
+        let base_dir = env::current_dir().unwrap();
         let mut tmp = PathBuf::new();
         tmp.push(std::env::temp_dir().to_str().unwrap().to_string());
+
+        log::debug!("temp path: {}\n", tmp.as_path().to_str().unwrap());
+        
+        let mut stdout_path = tmp.clone();
+        stdout_path.push("mdbook-lang-server.out");
+
+        let mut stderr_path = tmp.clone();
+        stderr_path.push("mdbook-lang-server.log");
+
         let mut pid_path = tmp.clone();
         pid_path.push("mdbook-lang-server.pid");
 
-        let _ = fs::remove_file(pid_path);
-    }
-    let stdout = File::create(stdout_path).unwrap();
-    let stderr = File::create(stderr_path).unwrap();
-
-    let daemonize = Daemonize::new()
-        .pid_file(pid_path.as_path()) // Every method except `new` and `start`
-        .chown_pid_file(true) // is optional, see `Daemonize` documentation
-        .working_directory(base_dir.as_path()) // for default behaviour.          
-        .umask(0o077) // Set umask, `0o027` by default.
-        .stdout(stdout) // Redirect stdout to `/tmp/mdbook-lang-server.out`.
-        .stderr(stderr) // Redirect stderr to `/tmp/mdbook-lang-server.err`.
-        .privileged_action(|| "Executed before drop privileges");
-
-    match daemonize.start() {
-        Ok(_) => {
-            log::info!("Success, daemonized");
-        }
-        Err(e) => eprintln!("Error, {}", e),
-    }
-    log::info!("pid is:{}", std::process::id());
-
-    let mut signals = Signals::new([SIGINT, SIGTERM, SIGQUIT]).unwrap();
-
-    thread::spawn(move || {
-        for sig in signals.forever() {
-            log::info!("Received signal {:?}", sig);
+        {
             let mut tmp = PathBuf::new();
             tmp.push(std::env::temp_dir().to_str().unwrap().to_string());
             let mut pid_path = tmp.clone();
             pid_path.push("mdbook-lang-server.pid");
 
             let _ = fs::remove_file(pid_path);
-            process::exit(-1);
         }
-    });
+        let stdout = File::create(stdout_path).unwrap();
+        let stderr = File::create(stderr_path).unwrap();
 
-    let result = lang_server(hostname, port);
-    let mut tmp = PathBuf::new();
-    tmp.push(std::env::temp_dir().to_str().unwrap().to_string());
-    let mut pid_path = tmp.clone();
-    pid_path.push("mdbook-lang-server.pid");
+        let daemonize = Daemonize::new()
+            .pid_file(pid_path.as_path()) // Every method except `new` and `start`
+            .chown_pid_file(true) // is optional, see `Daemonize` documentation
+            .working_directory(base_dir.as_path()) // for default behaviour.          
+            .umask(0o077) // Set umask, `0o027` by default.
+            .stdout(stdout) // Redirect stdout to `/tmp/mdbook-lang-server.out`.
+            .stderr(stderr) // Redirect stderr to `/tmp/mdbook-lang-server.err`.
+            .privileged_action(|| "Executed before drop privileges");
 
-    let _ = fs::remove_file(pid_path);
-    
-    match result{
-        Ok(_code) => {
-            log::info!("return from axum serve");
-            // process::exit(code);
+        match daemonize.start() {
+            Ok(_) => {
+                log::info!("Success, daemonized");
+            }
+            Err(e) => eprintln!("Error, {}", e),
         }
-        Err(e) =>{
-            log::debug!("start language compiling server error:{}\n", e);
-            process::exit(-2);
+        log::info!("pid is:{}", std::process::id());
+
+        let mut signals = Signals::new([SIGINT, SIGTERM, SIGQUIT]).unwrap();
+
+        thread::spawn(move || {
+            for sig in signals.forever() {
+                log::info!("Received signal {:?}", sig);
+                let mut tmp = PathBuf::new();
+                tmp.push(std::env::temp_dir().to_str().unwrap().to_string());
+                let mut pid_path = tmp.clone();
+                pid_path.push("mdbook-lang-server.pid");
+
+                let _ = fs::remove_file(pid_path);
+                process::exit(-1);
+            }
+        });
+
+        let result = lang_server(hostname, port);
+        let mut tmp = PathBuf::new();
+        tmp.push(std::env::temp_dir().to_str().unwrap().to_string());
+        let mut pid_path = tmp.clone();
+        pid_path.push("mdbook-lang-server.pid");
+
+        let _ = fs::remove_file(pid_path);
+        
+        match result{
+            Ok(_code) => {
+                log::info!("return from axum serve");
+                // process::exit(code);
+            }
+            Err(e) =>{
+                log::debug!("start language compiling server error:{}\n", e);
+                process::exit(-2);
+            }
         }
     }
-}
 
-// as a daemon that serving the language RestFull API request
-#[tokio::main]
-async fn lang_server(hostname:&str, port:&str) -> Result<i32, std::io::Error>{
-    log::debug!("Starting server on {}:{}", hostname, port);
-    //the compiling service supports cross domain request
-    let cors = CorsLayer::new()
-    .allow_methods([Method::GET, Method::POST])
-//    .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
-    .allow_origin(Any)
-    .allow_headers([CONTENT_TYPE]);
 
-    // Define Routes
-    let app = Router::new()
-        .route("/", get(|| {
-            println!("response :{}", "working ... ");
-            async {"Hello, mdbook-lang multi-language programming server!"}
-        }))
-        .route("/api/v1/build-code", post(build_code))
-        .layer(cors);  //support cross domain restful api calling
 
-    let listener = tokio::net::TcpListener::bind(format!("{}:{}",hostname, port))
-        .await;
-    match listener{
-        Ok(listener) => {
-            log::info!("listening on {}", listener.local_addr().unwrap());
-            match axum::serve(listener, app).await{
-                Ok(_) => {
-                    log::info!("axum::serve await ok\n");
+    // as a daemon that serving the language RestFull API request
+
+    #[tokio::main]
+    #[cfg(not(target_os = "windows"))]
+    async fn lang_server(hostname:&str, port:&str) -> Result<i32, std::io::Error>{
+        log::debug!("Starting server on {}:{}", hostname, port);
+        //the compiling service supports cross domain request
+        let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST])
+    //    .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+        .allow_origin(Any)
+        .allow_headers([CONTENT_TYPE]);
+
+        // Define Routes
+        let app = Router::new()
+            .route("/", get(|| {
+                println!("response :{}", "working ... ");
+                async {"Hello, mdbook-lang multi-language programming server!"}
+            }))
+            .route("/api/v1/build-code", post(build_code))
+            .layer(cors);  //support cross domain restful api calling
+
+        let listener = tokio::net::TcpListener::bind(format!("{}:{}",hostname, port))
+            .await;
+        match listener{
+            Ok(listener) => {
+                log::info!("listening on {}", listener.local_addr().unwrap());
+                match axum::serve(listener, app).await{
+                    Ok(_) => {
+                        log::info!("axum::serve await ok\n");
+                    }
+                    Err(e)=>{
+                        log::info!("axum::serve error:{}\n", e);
+                    }
                 }
-                Err(e)=>{
-                    log::info!("axum::serve error:{}\n", e);
-                }
+                log::info!("listening on exit for language compiling server");
+                return Ok(0);
             }
-            log::info!("listening on exit for language compiling server");
-            return Ok(0);
-        }
-        Err(e) => {
-            return Err(e);
+            Err(e) => {
+                return Err(e);
+            }
         }
     }
 }
 
 
 pub async fn build_code(Json(code): Json<Code>) -> String {
+    // debug windows
+    log::debug!("Json :{:?}", code);
     // load the sandbox configuration
     let sandbox_cmd = std::env::var("MDBOOKLANG_SERVER_SANDBOX_CMD");
     let mut sandbox_args_vec:Vec<String> = vec![];
@@ -608,7 +629,7 @@ pub async fn build_code(Json(code): Json<Code>) -> String {
     let result = match code.lang.as_str(){
         "cpp" => build_cpp(code.code_block, sandbox_args_vec),
         "c" => build_c(code.code_block, sandbox_args_vec),
-        "java" => build_java(code.code_block, sandbox_args_vec),
+        "java" => build_java_classpath_separator(code.code_block, sandbox_args_vec),
         "python" => build_python(code.code_block, sandbox_args_vec),
         "go" => build_go(code.code_block, sandbox_args_vec),
         "javascript" => build_javascript(code.code_block, sandbox_args_vec),
@@ -620,7 +641,219 @@ pub async fn build_code(Json(code): Json<Code>) -> String {
     let result = serde_json::to_string(&json!({
         "result": result
     })).unwrap();
-
+    log::debug!("result is :{}", result);
     result
 }
 
+#[cfg(target_os = "windows")]
+mod win{
+    use chrono::Local;
+    use std::fs::File;
+    use std::thread;
+    use std::io::Write;
+    use std::path::PathBuf;
+
+    use log;
+    use tokio::sync::oneshot::Receiver;
+
+    use crate::cli::{self, SERVICE_NAME};
+    use tower_http::cors::{Any, CorsLayer};
+
+    use axum::{
+        http::{header::CONTENT_TYPE, Method}, routing::{get, post}, Router
+    };
+    use std::sync::Arc;
+    use std::sync::atomic::AtomicBool;
+    use std::sync::atomic::Ordering;
+    use std::ffi::OsString;
+    use std::thread::sleep;
+    use std::time::Duration;
+    
+
+    use windows_service::service::{
+        ServiceControl, ServiceControlAccept, ServiceExitCode, ServiceState, ServiceStatus,
+        ServiceType,
+    };
+    use windows_service::service_control_handler::{self, ServiceControlHandlerResult};
+    use windows_service::define_windows_service;
+    use windows_service::service_dispatcher;
+
+    use super::build_code;
+
+    fn my_service_main(arguments: Vec<OsString>) {
+        if let Err(e) = run_service(arguments) {
+            log::info!("{}", e);
+        }
+    }
+
+
+    define_windows_service!(ffi_service_main, my_service_main);
+
+    pub fn start_lang_server(){
+
+        service_dispatcher::start(SERVICE_NAME, ffi_service_main).unwrap();
+
+    }
+
+    // as a system service that serving the language RestFull API request
+    #[tokio::main]
+    async fn lang_server(rx: Receiver<()>, hostname:&str,  port:&str){
+        log::info!("Starting server on {}:{}", hostname, port);
+        let hostname = hostname.to_string();
+        let port = port.to_string();
+        
+
+        let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST])
+        .allow_origin(Any)
+        .allow_headers([CONTENT_TYPE]);
+
+        // Define Routes
+        let app = Router::new()
+            .route("/", get(|| {
+                log::debug!("response :{}", "working ... ");
+                async {
+                    format!("{}\n{}\n",
+                        "Hello, mdbook-lang multi-language programming server!",
+                        std::env::temp_dir().to_str().unwrap().to_string())
+                }
+            }))
+            .route("/api/v1/build-code", post(build_code))
+            .layer(cors);  //support cross domain restful api calling
+
+        let listener = tokio::net::TcpListener::bind(format!("{}:{}",hostname, port))
+            .await.unwrap();
+        
+        log::info!("listening on {}", listener.local_addr().unwrap());
+        match axum::serve(listener, app)
+            .with_graceful_shutdown(async{  rx.await.ok(); })
+            .await{
+                Ok(_) => {
+                    log::info!("axum::serve await ok\n");
+                }
+                Err(e)=>{
+                    log::info!("axum::serve error:{}\n", e);
+                }
+        }
+        // axum::serve(listener, app)
+        // .with_graceful_shutdown(async{  rx.await.ok(); })
+        // .await.unwrap();
+        log::info!("listening on exit for language compiler server");
+    }
+
+fn run_service(arguments: Vec<OsString>) -> windows_service::Result<()> {
+        // use the tmpfile find temporary directory
+        let mut tmp = PathBuf::new();
+        tmp.push(std::env::temp_dir().to_str().unwrap().to_string());
+
+        let mut stdout_path = tmp.clone();
+        stdout_path.push("mdbook-lang-server.log");
+        let stdout = File::create(stdout_path.clone()).unwrap();
+        let level = std::env::var("MDBOOKLANG_LOG_LEVEL").unwrap_or_else(|_| "info".to_string());
+        env_logger::Builder::from_default_env()
+                .format(|buf, record| {
+                    writeln!(buf,
+                       "{} [{}] ({}): {}",
+                        Local::now().format("%Y-%m-%d %H:%M:%S"),
+                        record.level(),
+                        record.module_path().unwrap(),
+                        record.args()
+                    )
+                })
+                .target(env_logger::Target::Pipe(Box::new(stdout)))
+                // .filter_level(log::LevelFilter::Debug)  // 明确设置日志级别
+                .parse_filters(&level)
+                .try_init().expect("cannot init env_logger.");
+        
+        log::debug!("windows service subsystem arguments:{:?}", arguments);
+        #[allow(unused)]
+        let mut hostname = "".to_string();
+         #[allow(unused)]
+        let mut port = "".to_string();
+        if arguments.len() >= 3{
+            hostname = arguments[1].clone().to_str().unwrap().to_string();
+            port = arguments[2].clone().to_str().unwrap().to_string();
+        }else{
+            (hostname, port) = cli::win::extract_host_port().unwrap();
+        }
+
+        let running = Arc::new(AtomicBool::new(true));
+        let running_clone = Arc::clone(&running);
+         let event_handler = move |control_event| -> ServiceControlHandlerResult {
+            match control_event {
+                ServiceControl::Stop                 => {
+                    // receive service exit command
+                    // update the control flag to make main loop exit
+                    running_clone.store(false, Ordering::Relaxed);
+                    ServiceControlHandlerResult::NoError
+                }
+                _ => {
+                    ServiceControlHandlerResult::NotImplemented
+                }
+            }
+        };
+
+        // Register system service event handler
+        let status_handle = service_control_handler::register(SERVICE_NAME, event_handler)?;
+
+        let next_status = ServiceStatus {
+            // Should match the one from system service registry
+            service_type: ServiceType::OWN_PROCESS,
+            // The new state
+            current_state: ServiceState::Running,
+            // Accept stop events when running
+            controls_accepted: ServiceControlAccept::STOP,
+            // Used to report an error when starting or stopping only, otherwise must be zero
+            exit_code: ServiceExitCode::Win32(0),
+            // Only used for pending states, otherwise must be zero
+            checkpoint: 0,
+            // Only used for pending states, otherwise must be zero
+            wait_hint: Duration::default(),
+            process_id: None,
+        };
+
+        // Tell the system that the service is running now
+        status_handle.set_service_status(next_status)?;
+        log::info!("Success, service is running");
+
+        let (tx, rx) = tokio::sync::oneshot::channel::<()>();
+        thread::spawn(move ||{
+                    lang_server(
+                            rx,
+                            hostname.as_str(),
+                            port.as_str());
+                });
+        
+        while running.load(Ordering::Relaxed){
+            sleep(Duration::from_millis(10));
+        }
+        let _ = tx.send(());
+
+        /////////////////////////////////////////////////
+        // exit the work horse
+
+        let next_status = ServiceStatus {
+            // Should match the one from system service registry
+            service_type: ServiceType::OWN_PROCESS,
+            // The new state
+            current_state: ServiceState::Stopped,
+            // Accept stop events when running
+            controls_accepted: ServiceControlAccept::empty(),
+            // Used to report an error when starting or stopping only, otherwise must be zero
+            exit_code: ServiceExitCode::Win32(0),
+            // Only used for pending states, otherwise must be zero
+            checkpoint: 0,
+            // Only used for pending states, otherwise must be zero
+            wait_hint: Duration::default(),
+            process_id: None,
+        };
+
+        // Tell the system that the service is stopped
+        status_handle.set_service_status(next_status)?;
+        log::info!("end of run_service");
+
+        // Do some clean work
+
+        Ok(())
+    }
+}

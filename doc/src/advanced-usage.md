@@ -87,6 +87,12 @@ $ cd /path/to/rust-course/
 mdbook serve --hostname 127.0.0.1 --port 2001 > rust-course.log > 2&1 &
 ```
 
+### modify book.toml's server option
+
+```toml
+server = "http://183.205.132.14:3000/playground/api/v1/build-code"
+```
+
 ### access mdbook
 - 通过浏览器访问joop:[http://127.0.0.1:3000/joop](http://127.0.0.1:3000/joop)
 - 通过浏览器访问rust-course:[http://127.0.0.1:3000/rust-course](http://127.0.0.1:3000/rust-course)

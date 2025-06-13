@@ -19,8 +19,8 @@ jobs:
             target: x86_64-unknown-linux-gnu
           - os: macos-latest
             target: aarch64-apple-darwin
-          # - os: windows-latest
-          #   target: x86_64-pc-windows-msvc
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -52,12 +52,12 @@ jobs:
           name: ${{ matrix.target }}
           path: target/release/mdbook-lang
 
-      # - name: Artifact (Windows)
-      #   if: matrix.target == 'x86_64-pc-windows-msvc'
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ matrix.target }}
-      #     path: target/release/mdbook-lang.exe
+      - name: Artifact (Windows)
+        if: matrix.target == 'x86_64-pc-windows-msvc'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: target/release/mdbook-lang.exe
 
       # - name: Publish crate
       #   if: matrix.target == 'x86_64-unknown-linux-gnu'
@@ -90,7 +90,7 @@ jobs:
         run: |
           mv x86_64-unknown-linux-gnu mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-unknown-linux-gnu
           mv aarch64-apple-darwin mdbook-lang-${{ env.RELEASE_VERSION }}-aarch64-apple-darwin
-        # mv x86_64-pc-windows-msvc mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-pc-windows-msvc
+          mv x86_64-pc-windows-msvc mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-pc-windows-msvc
 
       - name: Compress binaries
         run: |
@@ -98,10 +98,7 @@ jobs:
           upx --best --force-macos mdbook-lang-*/mdbook-lang*
           zip -r mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-unknown-linux-gnu{.zip,}
           zip -r mdbook-lang-${{ env.RELEASE_VERSION }}-aarch64-apple-darwin{.zip,}
-
-        # zip -r mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-pc-windows-msvc{.zip,}
-
-     
+          zip -r mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-pc-windows-msvc{.zip,}
 
       - name: Create release
         uses: softprops/action-gh-release@v1
@@ -110,7 +107,7 @@ jobs:
           files: |
             mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-unknown-linux-gnu.zip
             mdbook-lang-${{ env.RELEASE_VERSION }}-aarch64-apple-darwin.zip
-            # mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-pc-windows-msvc.zip
+            mdbook-lang-${{ env.RELEASE_VERSION }}-x86_64-pc-windows-msvc.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       

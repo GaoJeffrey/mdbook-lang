@@ -22,7 +22,7 @@ pub fn build_scheme(code_block: String, sandbox_args_vec: Vec<String>) -> String
 
 
     let mut sandbox_args_vec = sandbox_args_vec.clone();    
-    sandbox_args_vec.push("scheme-r5rs".to_string());
+    sandbox_args_vec.push("gsi".to_string());
     sandbox_args_vec.push(source_file.as_path().to_str().unwrap().to_string());
 
     let cmd = sandbox_args_vec[0].clone();

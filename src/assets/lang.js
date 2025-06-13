@@ -453,13 +453,13 @@ function generateUUID() { // Public Domain/MIT
                 editor.commands.addCommand({
                     name: 'clear',
                     bindKey: {
-                        win: 'Ctrl-L',
-                        mac: 'Cmd-U',
+                        win: 'Ctrl-Shift-Enter',
+                        mac: 'Cmd-Shift-Enter',
                     },
                     exec: _editor => {
-                        let result_block = playground_block.querySelector('.result');
+                        let result_block = pre_block.querySelector('.result');
                         if(result_block){
-                            playground_block.removeChild(result_block);
+                            pre_block.removeChild(result_block);
                         }
                     },
                 });

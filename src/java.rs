@@ -8,8 +8,18 @@ use regex::Regex;
 
 pub use crate::common::{prepare, exe_command, remove_dir_from_error};
 
+#[cfg(target_os = "windows")]
+pub fn build_java_classpath_separator(code_block: String, sandbox_args_vec: Vec<String>) -> String{
+    build_java(code_block, sandbox_args_vec,";")
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn build_java_classpath_separator(code_block: String, sandbox_args_vec: Vec<String>) -> String{
+    build_java(code_block, sandbox_args_vec,":")
+}
+
 #[allow(unused)]
-pub fn build_java(code_block: String, sandbox_args_vec: Vec<String>) -> String{
+pub fn build_java(code_block: String, sandbox_args_vec: Vec<String>, seperator: &str) -> String{
     let mut java_source_file = "".to_string();
     let mut java_class_file = "".to_string();
 
@@ -41,6 +51,10 @@ pub fn build_java(code_block: String, sandbox_args_vec: Vec<String>) -> String{
     let result = exe_command("javac".to_string(), 
                                     [
                                         "-J-Duser.language=en".to_string(),
+                                        // "-J-Duser.language=zh".to_string(),
+                                        //  "-J-Duser.country=CN".to_string(),
+                                        "-encoding".to_string(),
+                                        "UTF-8".to_string(),
                                         source_file.as_path().to_str().unwrap().to_string()
                                         ].to_vec());
     let result = remove_dir_from_error(&result, java_source_file);
@@ -74,7 +88,7 @@ pub fn build_java(code_block: String, sandbox_args_vec: Vec<String>) -> String{
             if classpath_old.is_ok() {
                 classpath.push_str(classpath_old.unwrap().as_str());
             }        
-            classpath.push_str(":");
+            classpath.push_str(seperator);
             classpath.push_str(dir.to_str().unwrap());
             unsafe {
                 std::env::set_var("CLASSPATH".to_string(), classpath);
@@ -157,14 +171,22 @@ pub fn build_java(code_block: String, sandbox_args_vec: Vec<String>) -> String{
                 result.push_str("\n");
             }
             let output_file = main_class_file[0].clone();
-            
+            log::debug!("find main_class:{:?}", output_file);
             
             let mut sandbox_args_vec = sandbox_args_vec.clone();    
             sandbox_args_vec.push("java".to_string());
+            // sandbox_args_vec.push("-J-Duser.language=zh".to_string());
+            // "-J-Duser.language=zh".to_string(),
+            // "-J-Duser.country=CN".to_string(),
+            sandbox_args_vec.push("-Duser.language=zh".to_string());
+            sandbox_args_vec.push("-Duser.country=CN".to_string());
             sandbox_args_vec.push(output_file.file_stem().unwrap().to_str().unwrap().to_string());
 
+            log::debug!("command and args are: {:?}", sandbox_args_vec);
+
             let cmd = sandbox_args_vec[0].clone();
-            result.push_str(exe_command(cmd, sandbox_args_vec[1..].to_vec()).as_str());
+            let r = exe_command(cmd, sandbox_args_vec[1..].to_vec());
+            result.push_str(r.as_str());
 
             let _r = fs::remove_dir_all(dir.clone().as_path());
 
@@ -197,7 +219,69 @@ pub fn public_class_or_interface_finder(java_code: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
+    use std::io::BufRead;
+
+    use assert_cmd::Command;
+
     use super::*;
+    #[test]
+    fn test_cn_build(){ 
+        env_logger::Builder::from_default_env()
+            .filter_level(log::LevelFilter::Debug)  // 明确设置日志级别
+            .try_init()
+            .expect("Failed to initialize logger");
+        // set the classpath to curreng working directory
+        let mut classpath = String::new();
+        let classpath_old = std::env::var("CLASSPATH");
+        if classpath_old.is_ok() {
+            classpath.push_str(classpath_old.unwrap().as_str());
+        }        
+        classpath.push_str(";");
+        classpath.push_str("d:\\rust\\mdbook-lang\\tests");
+        unsafe {
+            std::env::set_var("CLASSPATH".to_string(), classpath);
+        }
+        
+        let mut cmd = std::process::Command::new("java");
+        cmd.arg("HelloWorldCN");
+
+        let child = cmd.stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::piped()).spawn();
+        match child{
+            Ok(mut child)=>{
+                log::info!("child is ok");
+                child.wait().expect("child is not running");
+                        
+                let stdout = child.stdout;
+                let stderr = child.stderr;
+                let mut result = String::new();
+                
+                let out_reader = std::io::BufReader::new(stdout.unwrap());
+                
+                out_reader
+                    .lines()
+                    .filter_map(|line| line.ok())
+                    .for_each(|line| result.push_str(format!("{}\n",line).as_str()));
+
+                let err_reader = std::io::BufReader::new(stderr.unwrap());
+                
+                err_reader
+                    .lines()
+                    .filter_map(|line| line.ok())
+                    .for_each(|line| result.push_str(format!("{}\n",line).as_str()));
+
+                log::info!("{}", result);
+            }
+                
+            Err(e)=>{
+                log::info!("{}", e);
+            }
+        }
+        
+
+
+        // assert_eq!(result, "Hello, World!\n");
+    }
+
     #[test]
     fn test_build_one_main_public() {
         let sandbox_cmd = std::env::var("MDBOOK_LANG_SERVER_SANDBOX_CMD").unwrap_or_else(|_| "".to_string());
@@ -216,7 +300,7 @@ mod tests {
                 }
             }
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         assert_eq!(result, "Hello, World!\n");
     }
     #[test]
@@ -237,7 +321,7 @@ mod tests {
                 }
             }
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         assert_eq!(result, "Hello, World!\n");
     }
     #[test]
@@ -258,7 +342,7 @@ mod tests {
                 }
             }
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         println!("result: {}", result);
         assert_eq!(result, "cannot find main class\n");
     }
@@ -280,7 +364,7 @@ mod tests {
                 }
             }
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         println!("result: {}", result);
         assert_eq!(result, "cannot find main class\n");
     }
@@ -307,7 +391,7 @@ mod tests {
                 }
             }
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         assert_eq!(result, "Hello, World!\n");
     }
     #[test]
@@ -333,7 +417,7 @@ mod tests {
                 }
             }  
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         assert!(result.ends_with("Hello, World!\n"));
     } 
      #[test]
@@ -359,7 +443,7 @@ mod tests {
                 }
             }  
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         assert!(result.contains("Hello, World!\n"));
     } 
      #[test]
@@ -385,7 +469,7 @@ mod tests {
                 }
             }  
         "#;
-        let result = build_java(code.to_string(), sandbox_args_vec);
+        let result = build_java_classpath_separator(code.to_string(), sandbox_args_vec);
         assert_eq!(result.contains("Hello, World!1\n"), true);
     } 
     #[test]

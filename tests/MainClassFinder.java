@@ -1,6 +1,6 @@
 import java.lang.reflect.Method;
 public class MainClassFinder{
-	public static void main(String args[]){
+    public static void main(String args[]){
         try {
             java.net.URL classUrl = new java.io.File(args[0]).toURI().toURL();
             if(args.length < 1 || classUrl == null){
@@ -21,5 +21,5 @@ public class MainClassFinder{
         } catch (Exception e) {
             System.out.println("no_main");
         }
-	}
+    }
 }

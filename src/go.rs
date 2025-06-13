@@ -36,6 +36,11 @@ pub fn build_go(code_block: String, sandbox_args_vec: Vec<String>) -> String{
             result
         },
         None => {
+            if let Some(_) = result.find("cannot find command"){
+                    let _r = fs::remove_dir_all(dir.clone().as_path());
+                    return result
+            }
+
             let mut warning = String::new();
 
             if result.len() > 0 {
@@ -61,8 +66,6 @@ pub fn build_go(code_block: String, sandbox_args_vec: Vec<String>) -> String{
         }
     }
 }
-
-
 
 #[test]
 fn build_go_test(){

@@ -19,20 +19,16 @@ pub fn build_cpp(code_block: String, sandbox_args_vec: Vec<String>) -> String{
             return info;
         }
     }
-    
 
     // write the source code into file
     let _r = source.write_all(code_block.as_bytes());
     let _r = source.flush();
-    
 
     let result = exe_command("clang++".to_string(), vec![
                                     source_file.as_path().to_str().unwrap().to_string(),
                                     "-o".to_string(),
                                     output_file.as_path().to_str().unwrap().to_string(),
                                 ]);
-
-    
     let error = result.find("error");
         
     match error {
@@ -43,6 +39,12 @@ pub fn build_cpp(code_block: String, sandbox_args_vec: Vec<String>) -> String{
             result
         },
         None => {
+
+            if let Some(_) = result.find("cannot find command"){
+                let _r = fs::remove_dir_all(dir.clone().as_path());
+                return result
+            }
+
             let mut warning = String::new();
             let file_name = source_file.as_path().file_name().unwrap().to_str().unwrap().to_string();
             let result = remove_dir_from_error(&result, file_name);

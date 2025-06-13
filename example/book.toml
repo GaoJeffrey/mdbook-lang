@@ -9,7 +9,7 @@ title = "mdbook-lang example"
 
 [preprocessor.lang]
 command = "mdbook-lang"
-server = "https://183.205.132.14:3000/playground/api/v1/build-code"
+server = "http://127.0.0.1:3333/api/v1/build-code"
 cpp-enable = true
 java-enable = true
 go-enable = true
@@ -32,3 +32,4 @@ ace-strict = false
 [output.html]
 additional-js = ["jquery.js", "disable-devtool.js", "lang.js"]
 additional-css = ["lang.css"]
+

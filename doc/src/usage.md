@@ -1,6 +1,6 @@
 # Usage
 
-THis is designed as a preprocessor plugin for mdbook and a compiler server running standalone. 
+This is designed as a preprocessor plugin for mdbook and a compiler server running standalone. 
 
 ## Installation
 
@@ -12,7 +12,7 @@ You can install it with cargo if you have rust environment:
 cargo install mdbook-lang
 ```
 
-Or you can download the binary from [github release page](https://github.com/GaoJeffrey/mdbook-lang). You should put the binary in your system's PATH.
+Or you can download the binary from [github page](https://github.com/GaoJeffrey/mdbook-lang). You should put the binary in your system's `PATH`.
 
 You can cheeck the instalation with:
 ```bash
@@ -72,8 +72,11 @@ additional-css = ["lang.css"]
 I deployed a compiler server, you can modify the value of `server` use it for test directly.
 
 ```toml
-server = "http://183.205.132.14:3333/api/v1/build-code"
+server = "https://183.205.132.14:3000/playground/api/v1/build-code"
 ```
+
+**Notice**
+You should open [https://183.205.132.14:3000](https://183.205.132.14:3000) in your browser and ignore or close the security alert first, othewise you cannot access it when playing your programming language.
 
 - language.enable: Enable the language for the repl, default value is true.
 
@@ -82,19 +85,73 @@ server = "http://183.205.132.14:3333/api/v1/build-code"
 
 
 ## Run the compiler server
+### Only Windows 7/8/10/11 needs install/uninstall Service
+All cmd prompt commands need to be run as `administrator`.
+
+- insrall the install the `mdbook-lang` as a service
+```bash
+C:\Windows\System32>mdbook-lang server install --hostname 127.0.0.1 --port 3333
+```
+
+Or use `127.0.0.1` as the default `hostname`, and `3333` for `port`:
+```bash
+C:\Windows\System32>mdbook-lang server install
+```
+
+
+When you donn't need the `mdbook-lang` service or want to change the `hostname` and/or `port`, you should `uninstall` and re- `install` it with different `hostname` and/or `port` argument(s).
+
+Delete it forever:
+```bash
+mdbook-lang uninstall
+```
+
+If you want change `hostname` and/or `port`:
+
+```bash
+mdbook-lang server uninstall
+mdbook-lang server install --hostname 0.0.0.0 --port 3333
+```
+
+### Unix like OS and Windows 7/8/10/11
+
+#### start mdbook-lang compiler server
+Administror privilege needed for Windows oS.
+
 You can run the compiler server with:
 ```bash
 mdbook-lang server start
 ```
 
-Or you can run the compiler server with `--hostname` or short `-n` and `--port` or short `-p`arguments:
+Or you can run the compiler server with `--hostname` or short `-n` and `--port` or short `-p`arguments in `Unix like OS`:
 ```bash
 mdbook-lang server start --hostname 127.0.0.1 -port 3333
 ```
+For Windows
+- start the service
+```bash
+C:\Windows\System32>mdbook-lang server start
+```
+or through the OS provided `Service manager` or `Task manager` GUI tool.
+
+#### `stop/restart/status` subcommands
+- stop server
+```bash
+mdbook-lang server stop
+```
+- restart server
+```bash
+mdbook-lang server restart
+```
+- check server status
+```bash
+mdbook-lang server status
+```
+
 
 ## Run the mdbook
 ```bash
-mdbook serve
+mdbook serve -o
 ```
 
 ## Options
@@ -153,10 +210,10 @@ public class HelloWorld {
 
 |OS| Shortcut | Description |
 | --- | --- | --- |
-|Windows| Ctrl + Enter | Run the code |
-|Mac| Command + Enter | Run the code |
-|Windows| Ctrl + L | Run the code and show the output |
-|Mac| Command + L | Run the code and show the output |
+|Windows| Ctrl-Enter | Run the code |
+|Mac| Command-Enter | Run the code |
+|Windows| Ctrl-Shift-Enter | Clear the output |
+|Mac| Command-Shift-Enter | Clear the output |
 
 ## Language Extensions
 
@@ -169,10 +226,10 @@ Here is the full list of extensions:
 | C++ | cpp, c++, c| clang++|
 | Java | java|sun jdk/openjdk|
 | Go | go|golang|
-| Python | py, python|python2, python3, python|
+| Python | py, python|python2, python3(`python` dir should in the `PATH` env.)|
 | JavaScript | js, javascript|node.js|
 | TypeScript | ts, typescript|node.js, tsc|
-| Scheme | lisp, scheme|gambit-scheme|
+| Scheme | lisp, scheme|gambit-scheme(`gsi` dir should in `PATH` env.)|
 
 In order to to support some langguages, you should install corresponding compilers on compiler server host.
 
