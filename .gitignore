@@ -5,11 +5,17 @@
 /example/*.css
 /example/*.html
 
-/doc/book
-/doc/*.js
-/doc/*.css
-/doc/*.html
+/doc/en/book
+/doc/en/*.js
+/doc/en/*.css
+/doc/en/*.html
+
+/doc/zh/book
+/doc/zh/*.js
+/doc/zh/*.css
+/doc/zh/*.html
 
 .DS_Store
 /*/.DS_Store
+/*/*/.DS_Store
 /*/.class

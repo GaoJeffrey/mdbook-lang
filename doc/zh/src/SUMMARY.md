@@ -1,12 +1,9 @@
-# Basics
-
+# 基础
 - [简介](./intro.md)
 - [基本用法](./usage.md)
-- [高级用啊](./advanced-usage.md)
-
+- [高级用法](./advanced-usage.md)
 ___
-
-# Languages
+# 编程语言
 
 - [C/C++](./cpp.md)
 - [Go](./go.md)

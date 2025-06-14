@@ -11,5 +11,5 @@ let person: { name: string; age: number; isStudent: boolean } = {
     age: 30,
     isStudent: true,
 }
-Console.log(person);
+console.log(person);
 ```
