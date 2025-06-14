@@ -46,6 +46,7 @@ jobs:
           cd doc/zh
           mdbook-lang install
           mdbook build
+          mv book zh
 
           cd ../en
           mdbook-lang install
@@ -53,8 +54,7 @@ jobs:
 
           cd ../..
 
-          mv doc/zh/book ./doc/zh/zh
-          mv doc/zh/zh ./doc/zh/book/
+          mv ./doc/zh/zh ./doc/en/book/
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
