@@ -78,7 +78,7 @@ server = "https://183.205.132.14:3000/playground/api/v1/build-code"
 **Notice**
 You should open [https://183.205.132.14:3000](https://183.205.132.14:3000) in your browser and ignore or close the security alert first, othewise you cannot access it when playing your programming language.
 
-- language.enable: Enable the language for the repl, default value is true.
+- language-enable: Enable the language for the repl, default value is true.
 
 - disable-devtool-auto : Disable the browser debugger automatically, default value is false.
 - ace-strict: Enable the strict mode of ace editor, default value is false. When enabled, the editor will not allow the user to cut, copy, and paste code in ACE editor.
@@ -158,7 +158,7 @@ mdbook serve -o
 
 ### norun
 
-norun option will make the codeblock not rendered by the preprocessor. You can use this option if you want to show some code examples that should not be executed, and the `language` is enabled by `language.enable=true`.
+norun option will make the codeblock not rendered by the preprocessor. You can use this option if you want to show some code examples that should not be executed, and the `language` is enabled by `language-enable=true`.
 
 <pre>
 <code class="language-markdown">

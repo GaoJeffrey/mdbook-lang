@@ -221,8 +221,6 @@ pub fn public_class_or_interface_finder(java_code: &str) -> Option<String> {
 mod tests {
     use std::io::BufRead;
 
-    use assert_cmd::Command;
-
     use super::*;
     #[test]
     fn test_cn_build(){ 

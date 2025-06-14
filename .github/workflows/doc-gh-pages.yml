@@ -43,13 +43,23 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Build with mdBook
         run: |
-          cd doc
+          cd doc/zh
           mdbook-lang install
           mdbook build
+
+          cd ../en
+          mdbook-lang install
+          mdbook build
+
+          cd ../..
+
+          mv doc/zh/book ./doc/zh/zh
+          mv doc/zh/zh ./doc/zh/book/
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./doc/book
+          path: ./doc/en/book
 
   # Deployment job
   deploy:

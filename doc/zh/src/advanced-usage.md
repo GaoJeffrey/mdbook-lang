@@ -1,11 +1,13 @@
-# Advanced Usage
+# A高级用法
 
-## nginx reverse proxy to support multiple books
+## 通过nginx反向代理部署多本电子书
 
-You can deploy multiple books on the same host with only one compiler server and nginx to support mmultiple programming languages.
+你可以在同一台主机上部署多本书籍，只需一个具有一个公网IP地址和一个端口号的物理服务器、编译服务器mdbook-lang和 nginx。
 
 
-### install nginx
+### 安装 nginx
+不同平台的安装方式有所不同，具体参考[install nginx](https://nginx.org/en/docs/install.html)
+
 
 #### ubuntu
 
@@ -26,6 +28,7 @@ brew install nginx
 ```bash
 choco install nginx
 ```
+
 ### configure nginx
 ```bash
 sudo vim /etc/nginx/conf.d/mdbook-lang.conf
@@ -70,37 +73,56 @@ server {
 }
 ```
 
-### start nginx
+### 启动 nginx
 ```bash
 sudo nginx -s reload
 ```
-### start compiler server
+### 启动编译服务器
+- 类Unix操作系统：Linux/MacOS/FreeBSD/NetBSD等
 ```bash
 mdbook-lang server --hostname 127.0.0.1 --port 3333
 ```
 
-### start mdbook
+
+- Windows7/8/10/11操作系统
+```bash
+mdbook-lang server start
+```
+
+如果在windows系统中提示没有安装服务，则执行如下命令，先将编译服务器安装为系统服务：
+```bash
+mbook-lang server install
+```
+
+
+### 启动电子书
 ```bash
 $ cd /path/to/joop/
-$ mdbook serve --hostname 127.0.0.1  --port 2000 > joop-mdbook.log 2> &1 &
+$ mdbook serve start --hostname 127.0.0.1  --port 2000 > joop-mdbook.log 2> &1 &
 $ cd /path/to/rust-course/
-mdbook serve --hostname 127.0.0.1 --port 2001 > rust-course.log > 2&1 &
+mdbook serve start --hostname 127.0.0.1 --port 2001 > rust-course.log > 2&1 &
 ```
 
-### modify book.toml's server option
+如果电子书没有安装`mdbook-lnag`支持，则需要在包含有`book.toml`的电子书根目录中执行命令：
+```bash
+mdbook-lang install
+```
+
+
+### 修改book.toml中的编译服务器配置
 
 ```toml
-server = "http://183.205.132.14:3000/playground/api/v1/build-code"
+server = "https://183.205.132.14:3000/playground/api/v1/build-code"
 ```
 
-### access mdbook
+### 通过浏览器访问电子书
 - 通过浏览器访问joop:[http://127.0.0.1:3000/joop](http://127.0.0.1:3000/joop)
 - 通过浏览器访问rust-course:[http://127.0.0.1:3000/rust-course](http://127.0.0.1:3000/rust-course)
 
 
-## suport sandbox for security
+## 沙箱安全
 
-### install firejail
+### 安装沙箱工具：firejail
 
 #### ubuntu
 ```bash
@@ -116,12 +138,14 @@ brew install firejail
 ```
 
 
-### configure firejail
+###  配置沙箱工具：firejail
+在合适位置新建沙箱配置文件:
+
 ```bash
 sudo vim /etc/firejail/mdbook-lang-server.profile
 ```
+文件内容如下
 
-and add the following content:
 ```bash
 # /etc/firejail/mdbook-lang-server.profile
 include disable-common.inc

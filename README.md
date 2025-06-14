@@ -1,6 +1,9 @@
 # mdBook Lang
 
-[Document on Github](https://gaojeffrey.github.io/mdbook-lang/)
+[中文](./README-zh.md)
+
+[中文文档](https://gaojeffrey.github.io/mdbook-lang/zh)
+[英文文档](https://gaojeffrey.github.io/mdbook-lang/)
 
 ___
 A playground mdbook preprocessor and compiler server for multiple programming languages inspired by [Rust rlayground](https://rust-lang.github.io/mdBook/format/mdbook.html#rust-playground), which supports only Rust programming language.
@@ -10,10 +13,10 @@ Version 0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme i
 ## platform support 
 | Version | OS | Arch |
 | ------- | ------- | ------- |
-| 0.1.x | Linux | all|
-| 0.1.x | MacOS| all |
+| 0.1.x | Linux | x86, x86_64, arm|
+| 0.1.x | MacOS| x86, x86_64, arm |
 | 0.1.0 | Windows | no |
-| 0.1.1 | Windows | all |
+| 0.1.1 | Windows | x86, x86_64, arm |
 
 - v0.1.1 is online now.
 
