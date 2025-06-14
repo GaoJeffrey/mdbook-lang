@@ -15,7 +15,7 @@ Version 0.1.0 supports c/c++, go, python, java, javascript, typescript, scheme i
 | Version | OS | Arch |
 | ------- | ------- | ------- |
 | 0.1.x | Linux | x86, x86_64, arm|
-| 0.1.x | MacOS| x86, x86_64, arm |
+| 0.1.x | MacOS| x86_64, arm |
 | 0.1.0 | Windows | no |
 | 0.1.1 | Windows | x86, x86_64, arm |
 
