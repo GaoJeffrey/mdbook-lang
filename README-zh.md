@@ -1,10 +1,10 @@
 # mdBook Lang
 
-[English](./README.md)
+[README in English](./README.md)
 
-[中文文档](https://gaojeffrey.github.io/mdbook-lang/en)
+[中文文档](https://gaojeffrey.github.io/mdbook-lang/zh)
 
-[英文文档](https://gaojeffrey.github.io/mdbook-lang/en)
+[Document in English](https://gaojeffrey.github.io/mdbook-lang/)
 
 ___
 一个受 [Rust playground](https://rust-lang.github.io/mdBook/format/mdbook.html#rust-playground) 启发的多编程语言`mdbook` 预处理器和编译服务器。

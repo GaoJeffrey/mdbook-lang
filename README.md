@@ -1,10 +1,10 @@
 # mdBook Lang
 
-[中文](./README-zh.md)
+[中文 README](./README-zh.md)
 
 [中文文档](https://gaojeffrey.github.io/mdbook-lang/zh)
 
-[英文文档](https://gaojeffrey.github.io/mdbook-lang/)
+[Document in English](https://gaojeffrey.github.io/mdbook-lang/)
 
 ___
 A playground mdbook preprocessor and compiler server for multiple programming languages inspired by [Rust rlayground](https://rust-lang.github.io/mdBook/format/mdbook.html#rust-playground), which supports only Rust programming language.
