@@ -1,9 +1,10 @@
+___
 # Basics
 
 - [Intro](./intro.md)
 - [Usage](./usage.md)
 - [Advanced Usage](./advanced-usage.md)
-
+- [firejail](./firejail.md)
 ___
 
 # Languages

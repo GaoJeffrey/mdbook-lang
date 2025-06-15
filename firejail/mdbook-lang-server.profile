@@ -1,6 +1,4 @@
 include disable-common.inc
-# include disable-exec.inc
-# noexec ${HOME}
 noexec ${RUNUSER}
 noexec /dev/shm
 noexec /var 
@@ -10,7 +8,7 @@ noexec /var
 
 include disable-passwdmgr.inc
 include disable-programs.inc
-quiet
+#quiet
 
 # ipc-namespace
 # machine-id
@@ -33,9 +31,10 @@ shell none
 # tracelog
 
 disable-mnt
-private
+# if don't cancel`private`, all ${HOME} cann't use whitelist
+# private
 # for debug porpose
-# private-bin ls
+
 
 # allow c/c++ tools chain
 private-bin mdbook-lang
@@ -47,9 +46,9 @@ private-bin java
 private-bin javac
 
 # allow python tools chain
+private-bin python
 private-bin python2
 private-bin python3
-
 # allow go tools chain
 private-bin go
 
@@ -59,6 +58,7 @@ private-bin tsc
 
 # allow lisp/scheme tools chain
 private-bin scheme-r5rs
+private-bin gsi
 
 # allow c/c++ output executable
 private-bin output.exe
@@ -87,3 +87,4 @@ blacklist /usr/libexec/firejail/firejail-profile
 blacklist /usr/libexec/firejail/firejail-shell
 blacklist /usr/libexec/firejail/firejail-shell-wrapper
 blacklist /usr/libexec/firejail/firejail
+whitelist ${HOME}/.local/lib/python3.10/site-packages
