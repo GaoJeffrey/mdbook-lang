@@ -1,4 +1,4 @@
-# firejail配置
+# 沙箱配置
 
 ## 添加白名单
 
@@ -15,7 +15,7 @@ $ python -m pip install numpy
 whitelist ${HOME}/.local/lib/python3.10/site-packages
 ```
 
-## 添加编译器白敏感
+## 添加编译器白名单
 
 如果安装了其他编译器，需要在firejail配置文件中添加：
 ```bash
